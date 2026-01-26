@@ -1,50 +1,59 @@
-import { useEffect } from "react"
-import { useNavigate } from "react-router-dom"
-import { supabase } from "@/supabaseClient"
+import { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { supabase } from "@/supabaseClient";
 
 export default function AuthCallback() {
-  const navigate = useNavigate()
+  const navigate = useNavigate();
 
   useEffect(() => {
-    const finishLogin = async () => {
+    const finishAuth = async () => {
+      // 1️⃣ Ensure session exists (handles OAuth redirect + refresh)
       const {
         data: { session },
-        error,
-      } = await supabase.auth.getSession()
+        error: sessionError,
+      } = await supabase.auth.getSession();
 
-      if (error || !session?.user) {
-        console.error("Session error:", error)
-        navigate("/login", { replace: true })
-        return
+      if (sessionError || !session?.user) {
+        console.error("No session after OAuth:", sessionError);
+        navigate("/login", { replace: true });
+        return;
       }
 
-      const user = session.user
-
+      // 2️⃣ Fetch role
       const { data: profile, error: profileError } = await supabase
         .from("profiles")
         .select("role")
-        .eq("id", user.id)
-        .maybeSingle()
+        .eq("id", session.user.id)
+        .single();
 
-      if (!profile || profileError) {
-        await supabase.from("profiles").insert({
-          id: user.id,
-          role: "student",
-        })
-
-        navigate("/student", { replace: true })
-        return
+      if (profileError || !profile?.role) {
+        console.error("Role fetch failed:", profileError);
+        navigate("/login", { replace: true });
+        return;
       }
 
-      navigate(`/${profile.role}`, { replace: true })
-    }
+      // 3️⃣ Role-based redirect (NO intermediate blank page)
+      switch (profile.role) {
+        case "student":
+          navigate("/student", { replace: true });
+          break;
+        case "faculty":
+          navigate("/faculty", { replace: true });
+          break;
+        case "admin":
+          navigate("/admin", { replace: true });
+          break;
+        default:
+          navigate("/login", { replace: true });
+      }
+    };
 
-    finishLogin()
-  }, [navigate])
+    finishAuth();
+  }, [navigate]);
 
   return (
     <div className="min-h-screen flex items-center justify-center">
       <p className="text-lg">Signing you in…</p>
     </div>
-  )
+  );
 }

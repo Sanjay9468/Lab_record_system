@@ -63,14 +63,14 @@ export default function Login() {
       return;
     }
 
-    navigate("/auth/callback", { replace: true });
+    navigate("/role-redirect", { replace: true });
   }
 
   async function googleLogin() {
     const { error } = await supabase.auth.signInWithOAuth({
       provider: "google",
       options: {
-        redirectTo: "http://localhost:5176/auth/callback",
+        redirectTo: `${window.location.origin}/auth/callback`,
       },
     });
 

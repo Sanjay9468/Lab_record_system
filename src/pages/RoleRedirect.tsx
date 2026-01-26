@@ -1,14 +1,37 @@
-import { Navigate } from "react-router-dom"
-import { useAuth } from "@/context/AuthContext"
+import { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { supabase } from "@/supabaseClient";
 
 export default function RoleRedirect() {
-  const { role, loading } = useAuth()
+  const navigate = useNavigate();
 
-  if (loading) return <div>Redirecting...</div>
+  useEffect(() => {
+    const redirectByRole = async () => {
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
 
-  if (role === "admin") return <Navigate to="/admin" replace />
-  if (role === "faculty") return <Navigate to="/faculty" replace />
-  if (role === "student") return <Navigate to="/student" replace />
+      if (!session) {
+        navigate("/login", { replace: true });
+        return;
+      }
 
-  return <Navigate to="/login" replace />
+      const { data: profile, error } = await supabase
+        .from("profiles")
+        .select("role")
+        .eq("id", session.user.id)
+        .single();
+
+      if (error || !profile?.role) {
+        navigate("/login", { replace: true });
+        return;
+      }
+
+      navigate(`/${profile.role}`, { replace: true });
+    };
+
+    redirectByRole();
+  }, [navigate]);
+
+  return <div>Redirecting…</div>;
 }

@@ -1,6 +1,6 @@
 import { JSX, useEffect, useState } from "react"
 import { Navigate, useLocation } from "react-router-dom"
-import { supabase } from "@/supabaseClient"
+import { supabase } from "../supabaseClient"
 
 type Role = "student" | "faculty" | "admin"
 
@@ -16,9 +16,15 @@ export default function ProtectedRoute({
   const [allowed, setAllowed] = useState(false)
 
   useEffect(() => {
+    let mounted = true
+
     const checkAccess = async () => {
-      const { data, error } = await supabase.auth.getSession()
-      const session = data.session
+      const {
+        data: { session },
+        error,
+      } = await supabase.auth.getSession()
+
+      if (!mounted) return
 
       if (error || !session) {
         setAllowed(false)
@@ -32,6 +38,8 @@ export default function ProtectedRoute({
         .eq("id", session.user.id)
         .maybeSingle()
 
+      if (!mounted) return
+
       if (profileError || !profile?.role) {
         setAllowed(false)
         setLoading(false)
@@ -43,6 +51,10 @@ export default function ProtectedRoute({
     }
 
     checkAccess()
+
+    return () => {
+      mounted = false
+    }
   }, [role])
 
   if (loading) {

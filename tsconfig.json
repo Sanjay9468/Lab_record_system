@@ -31,7 +31,8 @@
     /* ===== Path Alias (REQUIRED for shadcn) ===== */
     "baseUrl": ".",
     "paths": {
-      "@/*": ["src/*"]
+      "@/*": ["src/*"],
+      "@context/*": ["src/context/*"]
     },
 
     /* ===== DX (Optional but Nice) ===== */

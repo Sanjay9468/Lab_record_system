@@ -26,11 +26,17 @@ export default function ProtectedRoute({
         return;
       }
 
-      const { data: profile } = await supabase
+      const { data: profile, error: profileError } = await supabase
         .from("profiles")
         .select("role")
         .eq("id", session.user.id)
         .single();
+
+      if (profileError || !profile?.role) {
+        setAuthorized(false);
+        setLoading(false);
+        return;
+      }
 
       setAuthorized(profile?.role === allowedRole);
       setLoading(false);
@@ -39,7 +45,9 @@ export default function ProtectedRoute({
     checkRole();
   }, [allowedRole]);
 
-  if (loading) return null;
+  if (loading) {
+    return <div style={{ padding: "2rem", textAlign: "center" }}>Loading…</div>;
+  }
 
   return authorized ? <>{children}</> : <Navigate to="/login" replace />;
 }

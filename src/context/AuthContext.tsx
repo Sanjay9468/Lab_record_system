@@ -5,7 +5,7 @@ import {
   useState,
   ReactNode,
 } from "react"
-import { User } from "@supabase/supabase-js"
+import type { User } from "@supabase/supabase-js"
 import { supabase } from "../supabaseClient"
 
 type Role = "admin" | "faculty" | "student" | null
@@ -28,12 +28,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     // 1️⃣ Get existing session (page refresh support)
-    supabase.auth.getSession().then(({ data }) => {
+    supabase.auth.getSession().then(async ({ data }) => {
       const sessionUser = data.session?.user ?? null
       setUser(sessionUser)
 
       if (sessionUser) {
-        fetchUserRole(sessionUser.id)
+        await fetchUserRole(sessionUser.id)
       } else {
         setLoading(false)
       }
@@ -61,28 +61,31 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   // 🔐 Fetch role from DB
   async function fetchUserRole(userId: string) {
-    setLoading(true)
+    try {
+      setLoading(true)
 
-    const { data, error } = await supabase
-      .from("profiles")
-      .select("role")
-      .eq("id", userId)
-      .single()
+      const { data, error } = await supabase
+        .from("profiles")
+        .select("role")
+        .eq("id", userId)
+        .single()
 
-    if (error) {
-      console.error("Role fetch error:", error.message)
-      setRole(null)
-    } else {
-      setRole(data.role)
+      if (error) {
+        console.error("Role fetch error:", error.message)
+        setRole(null)
+      } else {
+        setRole(data.role)
+      }
+    } finally {
+      setLoading(false)
     }
-
-    setLoading(false)
   }
 
   async function signOut() {
     await supabase.auth.signOut()
     setUser(null)
     setRole(null)
+    setLoading(false)
   }
 
   return (
