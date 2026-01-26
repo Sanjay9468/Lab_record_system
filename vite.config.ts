@@ -4,9 +4,22 @@ import path from "path";
 
 export default defineConfig({
   plugins: [react()],
+  base: "/", // required for Vercel SPA
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
+    },
+  },
+  build: {
+    chunkSizeWarningLimit: 1000,
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          react: ["react", "react-dom"],
+          router: ["react-router-dom"],
+          supabase: ["@supabase/supabase-js"],
+        },
+      },
     },
   },
   server: {
