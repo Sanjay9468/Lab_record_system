@@ -16,20 +16,22 @@ export default function AdminDashboard() {
         return;
       }
 
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("role")
+      .eq("id", data.session.user.id)
+      .single();
+
+    if (profile?.role !== "admin") {
+      navigate("/login");
+      return;
+    }
+
+    if (data.session.user.email) {
       setEmail(data.session.user.email);
+    }
 
-      const { data: profile } = await supabase
-        .from("profiles")
-        .select("role")
-        .eq("id", data.session.user.id)
-        .single();
-
-      if (profile?.role !== "admin") {
-        navigate("/login");
-        return;
-      }
-
-      setLoading(false);
+    setLoading(false);
     };
 
     checkAdmin();

@@ -17,7 +17,10 @@ export default function StudentDashboard() {
         .eq("id", data.session.user.id)
         .single();
 
-      if (profile.role !== "student") navigate("/login");
+      if (!profile || profile.role !== "student") {
+        navigate("/login");
+        return;
+      }
       setLoading(false);
     };
     check();

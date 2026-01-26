@@ -1,53 +1,50 @@
-import { useEffect } from "react";
-import { supabase } from "../supabaseClient";
-import { useNavigate } from "react-router-dom";
+import { useEffect } from "react"
+import { useNavigate } from "react-router-dom"
+import { supabase } from "@/supabaseClient"
 
 export default function AuthCallback() {
-  const navigate = useNavigate();
+  const navigate = useNavigate()
 
   useEffect(() => {
-    const handleRedirect = async () => {
-      // ✅ Get session after Google OAuth redirect
+    const finishLogin = async () => {
       const {
         data: { session },
         error,
-      } = await supabase.auth.getSession();
+      } = await supabase.auth.getSession()
 
       if (error || !session?.user) {
-        navigate("/login", { replace: true });
-        return;
+        console.error("Session error:", error)
+        navigate("/login", { replace: true })
+        return
       }
 
-      const user = session.user;
+      const user = session.user
 
-      // ✅ Fetch role from DB
       const { data: profile, error: profileError } = await supabase
         .from("profiles")
         .select("role")
         .eq("id", user.id)
-        .single();
+        .maybeSingle()
 
-      // 🆕 First-time Google login → auto create student
-      if (profileError || !profile) {
+      if (!profile || profileError) {
         await supabase.from("profiles").insert({
           id: user.id,
           role: "student",
-        });
+        })
 
-        navigate("/student", { replace: true });
-        return;
+        navigate("/student", { replace: true })
+        return
       }
 
-      // 🔁 Role-based redirect
-      navigate(`/${profile.role}`, { replace: true });
-    };
+      navigate(`/${profile.role}`, { replace: true })
+    }
 
-    handleRedirect();
-  }, [navigate]);
+    finishLogin()
+  }, [navigate])
 
   return (
     <div className="min-h-screen flex items-center justify-center">
       <p className="text-lg">Signing you in…</p>
     </div>
-  );
+  )
 }

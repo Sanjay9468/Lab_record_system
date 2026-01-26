@@ -1,18 +1,20 @@
 import { ReactNode, useState } from "react";
-import { NavLink } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
+import { motion } from "framer-motion";
 import {
   Menu,
   X,
   Sun,
   Moon,
   LogOut,
+  LucideIcon,
 } from "lucide-react";
 import { supabase } from "@/supabaseClient";
 
 type LinkItem = {
   label: string;
   to: string;
-  icon: any;
+  icon: LucideIcon;
 };
 
 export default function DashboardLayout({
@@ -26,21 +28,27 @@ export default function DashboardLayout({
 }) {
   const [open, setOpen] = useState(false);
   const [dark, setDark] = useState(false);
+  const navigate = useNavigate();
 
   function toggleTheme() {
-    setDark(!dark);
+    setDark((d) => !d);
     document.documentElement.classList.toggle("dark");
   }
 
   async function logout() {
     await supabase.auth.signOut();
-    window.location.href = "/login";
+    navigate("/login", { replace: true });
   }
 
   return (
-    <div className={dark ? "dark" : ""}>
+    <motion.div
+      initial={{ opacity: 0, y: 25 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.4, ease: "easeOut" }}
+      className={dark ? "dark" : ""}
+    >
       <div className="flex min-h-screen bg-slate-100 dark:bg-slate-950">
-        {/* MOBILE MENU */}
+        {/* MOBILE MENU BUTTON */}
         <button
           onClick={() => setOpen(true)}
           className="md:hidden fixed top-4 left-4 z-50 bg-white dark:bg-slate-900 p-2 rounded shadow"
@@ -56,12 +64,9 @@ export default function DashboardLayout({
           {/* HEADER */}
           <div className="flex items-center justify-between p-6">
             <h2 className="text-xl font-bold text-blue-600">
-              🧪 Faculty
+              🧪 {title}
             </h2>
-            <button
-              className="md:hidden"
-              onClick={() => setOpen(false)}
-            >
+            <button className="md:hidden" onClick={() => setOpen(false)}>
               <X />
             </button>
           </div>
@@ -113,10 +118,9 @@ export default function DashboardLayout({
 
         {/* CONTENT */}
         <main className="flex-1 p-6 md:p-10 text-slate-800 dark:text-slate-100">
-          <h1 className="text-3xl font-bold mb-6">{title}</h1>
           {children}
         </main>
       </div>
-    </div>
+    </motion.div>
   );
 }
