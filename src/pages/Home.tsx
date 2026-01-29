@@ -1,5 +1,6 @@
-import { Link } from "react-router-dom"
-import { motion } from "framer-motion"
+import type React from "react";
+import { Link } from "react-router-dom";
+import { motion } from "framer-motion";
 import {
   GraduationCap,
   BookOpenCheck,
@@ -9,8 +10,8 @@ import {
   BarChart3,
   Cloud,
   Lock,
-} from "lucide-react"
-import { Button } from "@/components/ui/button"
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 export default function Home() {
   return (

@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/supabaseClient";
-import { useNavigate } from "react-router-dom";
 import {
   LogOut,
   PlusCircle,
@@ -25,7 +24,6 @@ type ExperimentTemplate = {
 };
 
 export default function FacultyDashboard() {
-  const navigate = useNavigate();
 
   const [submissions, setSubmissions] = useState<Submission[]>([]);
   const [templates, setTemplates] = useState<ExperimentTemplate[]>([]);
@@ -40,7 +38,7 @@ export default function FacultyDashboard() {
   /* 🔐 LOGOUT */
   async function logout() {
     await supabase.auth.signOut();
-    navigate("/login", { replace: true });
+    window.location.href = "/login";
   }
 
   /* 📥 FETCH DATA */

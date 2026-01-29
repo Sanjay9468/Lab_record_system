@@ -1,16 +1,18 @@
-import { JSX, useEffect, useState } from "react"
+import { ReactNode, useEffect, useState } from "react"
 import { Navigate, useLocation } from "react-router-dom"
 import { supabase } from "../supabaseClient"
 
 type Role = "student" | "faculty" | "admin"
 
+interface ProtectedRouteProps {
+  children: ReactNode
+  allowedRole: Role
+}
+
 export default function ProtectedRoute({
   children,
-  role,
-}: {
-  children: JSX.Element
-  role: Role
-}) {
+  allowedRole,
+}: ProtectedRouteProps) {
   const location = useLocation()
   const [loading, setLoading] = useState(true)
   const [allowed, setAllowed] = useState(false)
@@ -46,7 +48,7 @@ export default function ProtectedRoute({
         return
       }
 
-      setAllowed(profile.role === role)
+      setAllowed(profile.role === allowedRole)
       setLoading(false)
     }
 
@@ -55,7 +57,7 @@ export default function ProtectedRoute({
     return () => {
       mounted = false
     }
-  }, [role])
+  }, [allowedRole])
 
   if (loading) {
     return (

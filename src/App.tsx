@@ -1,60 +1,37 @@
-import { Routes, Route, Navigate } from "react-router-dom"
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 
-import Home from "@/pages/Home"
-import Login from "@/pages/Login"
-import Student from "@/pages/Student"
-import Faculty from "@/pages/Faculty"
-import Admin from "@/pages/Admin"
-import AuthCallback from "@/pages/AuthCallback"
-import RoleRedirect from "@/pages/RoleRedirect"
+import Home from "./pages/Home";
+import Login from "./pages/Login";
+import AuthCallback from "./pages/AuthCallback";
+import AuthFlow from "./pages/AuthFlow";
 
-import ProtectedRoute from "@/components/ProtectedRoute"
+// Role dashboards
+import Student from "./pages/Student";
+import Faculty from "./pages/Faculty";
+import Admin from "./pages/Admin";
 
 export default function App() {
   return (
-    <Routes>
-      {/* PUBLIC */}
-      <Route path="/" element={<Home />} />
-      <Route
-        path="/login"
-        element={
-          <Login />
-        }
-      />
+    <Router>
+      <Routes>
+        {/* Public pages */}
+        <Route path="/" element={<Home />} />
+        <Route path="/login" element={<Login />} />
 
-      {/* SUPABASE OAUTH CALLBACK */}
-      <Route path="/auth/callback" element={<AuthCallback />} />
-      <Route path="/role-redirect" element={<RoleRedirect />} />
+        {/* OAuth callback */}
+        <Route path="/auth/callback" element={<AuthCallback />} />
 
-      {/* PROTECTED */}
-      <Route
-        path="/student"
-        element={
-          <ProtectedRoute role="student">
-            <Student />
-          </ProtectedRoute>
-        }
-      />
+        {/* Central auth redirect */}
+        <Route path="/authflow" element={<AuthFlow />} />
 
-      <Route
-        path="/faculty"
-        element={
-          <ProtectedRoute role="faculty">
-            <Faculty />
-          </ProtectedRoute>
-        }
-      />
+        {/* Role based dashboards */}
+        <Route path="/student/*" element={<Student />} />
+        <Route path="/faculty/*" element={<Faculty />} />
+        <Route path="/admin/*" element={<Admin />} />
 
-      <Route
-        path="/admin"
-        element={
-          <ProtectedRoute role="admin">
-            <Admin />
-          </ProtectedRoute>
-        }
-      />
-
-      <Route path="*" element={<Navigate to="/" replace />} />
-    </Routes>
-  )
+        {/* Fallback */}
+        <Route path="*" element={<Home />} />
+      </Routes>
+    </Router>
+  );
 }

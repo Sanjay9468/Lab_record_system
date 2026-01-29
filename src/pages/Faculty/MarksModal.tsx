@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { supabase } from "@/supabaseClient";
 import { motion } from "framer-motion";
+import { X, Award } from "lucide-react";
 
 export default function MarksModal({ record, onClose, onSaved }: any) {
   const [marks, setMarks] = useState("");
@@ -19,35 +20,68 @@ export default function MarksModal({ record, onClose, onSaved }: any) {
   }
 
   return (
-    <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50">
+    <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50">
       <motion.div
-        initial={{ scale: 0.9, opacity: 0 }}
-        animate={{ scale: 1, opacity: 1 }}
+        initial={{ scale: 0.9, opacity: 0, y: 30 }}
+        animate={{ scale: 1, opacity: 1, y: 0 }}
+        transition={{ duration: 0.3 }}
         className="bg-slate-900 border border-white/10 rounded-2xl p-6 w-96 shadow-2xl"
       >
-        <h2 className="text-xl font-semibold mb-4 text-indigo-400">
-          Evaluate Experiment
-        </h2>
+        {/* Header */}
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-2">
+            <div className="p-2 rounded-lg bg-indigo-600/10 text-indigo-400">
+              <Award className="w-5 h-5" />
+            </div>
+            <h2 className="text-lg font-semibold text-indigo-400">
+              Evaluate Experiment
+            </h2>
+          </div>
 
-        <p className="text-sm mb-3 text-slate-300">
-          {record.experiment_title}
-        </p>
+          <button
+            onClick={onClose}
+            className="p-1 rounded-md hover:bg-white/10 transition"
+          >
+            <X className="w-5 h-5 text-slate-400" />
+          </button>
+        </div>
 
-        <input
-          type="number"
-          placeholder="Marks"
-          value={marks}
-          onChange={(e) => setMarks(e.target.value)}
-          className="w-full p-3 rounded-lg bg-black/40 border border-white/10 text-white mb-4"
-        />
+        {/* Content */}
+        <div className="mb-5">
+          <p className="text-xs uppercase tracking-wide text-slate-500 mb-1">
+            Experiment
+          </p>
+          <p className="text-sm text-slate-200 font-medium">
+            {record.experiment_title}
+          </p>
+        </div>
 
+        {/* Input */}
+        <div className="mb-6">
+          <label className="text-xs text-slate-400">Marks</label>
+          <input
+            type="number"
+            placeholder="Enter marks"
+            value={marks}
+            onChange={(e) => setMarks(e.target.value)}
+            className="w-full mt-2 p-3 rounded-lg bg-black/40 border border-white/10 text-white outline-none focus:border-indigo-500/50 transition"
+          />
+        </div>
+
+        {/* Actions */}
         <div className="flex justify-end gap-3">
-          <button onClick={onClose} className="text-slate-400">Cancel</button>
+          <button
+            onClick={onClose}
+            className="px-4 py-2 rounded-lg text-slate-400 hover:bg-white/5 transition"
+          >
+            Cancel
+          </button>
+
           <button
             onClick={submitMarks}
-            className="bg-indigo-600 hover:bg-indigo-700 px-4 py-2 rounded-lg"
+            className="bg-indigo-600 hover:bg-indigo-700 px-5 py-2 rounded-lg text-white font-medium shadow-md transition"
           >
-            Save
+            Save Marks
           </button>
         </div>
       </motion.div>
